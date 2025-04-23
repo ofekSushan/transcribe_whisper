@@ -32,6 +32,11 @@ def create_input_selector_ui(
     yt_progress.pack(pady=5)
 
     quality_choice = StringVar(value="best")
+    quality_menu = OptionMenu(
+        youtube_frame, quality_choice, "best", "1080p", "720p", "480p", "360p", "audio"
+    )
+    quality_menu.pack()
+
     return file_frame, youtube_frame, yt_progress, quality_choice, source_menu
 
 
