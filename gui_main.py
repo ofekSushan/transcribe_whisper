@@ -4,6 +4,7 @@ from tkinter import Tk, Label, StringVar, OptionMenu, ttk, messagebox, Button
 from transcribe_faster import transcribe
 from Helper import get_supported_models, DEVICE_OPTIONS
 from input_selector_ui import create_input_selector_ui
+from youtube_downloader import download_youtube_video  
 
 def run_transcription():
     filepath = file_path.get()
@@ -15,7 +16,15 @@ def run_transcription():
         if not url:
             messagebox.showerror("No URL", "Please enter a YouTube link.")
             return
-        filepath = "placeholder_downloaded_file.mp3"  # simulate download result
+
+        progress_bar["value"] = 5
+        progress_bar.update()
+
+        try:
+            filepath = download_youtube_video(url, quality_choice.get())
+        except Exception as e:
+            messagebox.showerror("Download Failed", f"Failed to download video:\n{e}")
+            return
 
     if not filepath:
         messagebox.showerror("No file", "Please select a file.")
@@ -70,13 +79,17 @@ def update_source_inputs():
         file_frame.pack_forget()
         youtube_frame.pack()
 
-file_frame, youtube_frame, yt_progress = create_input_selector_ui(
+file_frame, youtube_frame, yt_progress, quality_choice = create_input_selector_ui(
     app, source_choice, file_path, youtube_link, update_source_inputs
 )
 
+
 update_source_inputs()
 
-# --- Rest of GUI ---
+# --- GUI Elements ---
+Label(app, text="Input Source:", font=("Arial", 12, "bold")).pack(pady=(10, 5))
+
+ttk.Separator(app, orient="horizontal").pack(fill='x', pady=10)
 
 Label(app, text="Whisper Settings:", font=("Arial", 12, "bold")).pack(pady=(20, 10))
 
