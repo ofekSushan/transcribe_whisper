@@ -3,29 +3,18 @@ import yt_dlp
 import re
 
 def sanitize_filename(name):
-    # Remove invalid characters for safe file saving
     return re.sub(r'[\\/:"*?<>|]+', '', name)
 
 def download_youtube_video(url, quality="best"):
-    """
-    Downloads a YouTube video or audio using the title as filename inside the /output directory.
-    
-    Returns:
-        str: Full path to downloaded file
-    """
-
-    # Get video info (title)
     with yt_dlp.YoutubeDL({'quiet': True}) as ydl:
         info = ydl.extract_info(url, download=False)
         title = sanitize_filename(info.get("title", "youtube_video"))
 
-    # Prepare the output folder
     output_dir = "output"
     os.makedirs(output_dir, exist_ok=True)
 
-    # Define full output path based on quality
     if quality == "audio":
-        filename = title + ".mp3"
+        filename = f"{title} [audio]"
         format_code = "bestaudio"
         postprocessors = [{
             'key': 'FFmpegExtractAudio',
@@ -33,22 +22,31 @@ def download_youtube_video(url, quality="best"):
             'preferredquality': '192',
         }]
         merge = None
-    elif quality == "best":
-        filename = title + ".mp4"
-        format_code = "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4"
-        postprocessors = []
-        merge = "mp4"
+        final_ext = ".mp3"
     else:
-        filename = title + ".mp4"
-        format_code = f"bestvideo[height={quality.rstrip('p')}][ext=mp4]+bestaudio[ext=m4a]/mp4"
+        if quality == "best":
+            actual_height = info.get("height") or info.get("formats", [{}])[0].get("height", 1080)
+            suffix = f"{actual_height}p"
+        else:
+            suffix = quality
+
+        filename = f"{title} [{suffix}]"
+
+        if quality == "best":
+            format_code = "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4"
+        else:
+            format_code = f"bestvideo[height={quality.rstrip('p')}][ext=mp4]+bestaudio[ext=m4a]/mp4"
+
         postprocessors = []
         merge = "mp4"
+        final_ext = ".mp4"
 
     output_path = os.path.join(output_dir, filename)
+    if quality == "audio" and output_path.endswith(".mp3"):
+        output_path = output_path[:-4]
 
-    # If file already exists, skip download
-    if os.path.exists(output_path):
-        return output_path
+    if os.path.exists(output_path + final_ext):
+        return output_path + final_ext
 
     ydl_opts = {
         'format': format_code,
@@ -62,4 +60,4 @@ def download_youtube_video(url, quality="best"):
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([url])
 
-    return output_path
+    return output_path + final_ext
