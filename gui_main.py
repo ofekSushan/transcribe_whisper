@@ -157,7 +157,6 @@ Checkbutton(
 ).pack(pady=(10, 0))
 
 whisper_frame = Frame(content_frame)
-ttk.Separator(whisper_frame, orient="horizontal").pack(fill="x", pady=10)
 Label(whisper_frame, text="Whisper Settings:", font=("Arial", 12, "bold")).pack(
     pady=(10, 10)
 )
@@ -171,7 +170,7 @@ Label(whisper_frame, text="Device:").pack()
 OptionMenu(whisper_frame, device_choice_label, *DEVICE_OPTIONS.keys()).pack()
 whisper_frame.pack(pady=(10, 0))
 
-progress_bar = ttk.Progressbar(app, orient="horizontal", length=300, mode="determinate")
+progress_bar = ttk.Progressbar(whisper_frame, orient="horizontal", length=300, mode="determinate")
 progress_bar.pack(pady=10)
 Button(app, text="Transcribe", command=run_program).pack(pady=10)
 
