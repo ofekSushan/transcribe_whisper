@@ -7,7 +7,7 @@ def sanitize_filename(name):
     return re.sub(r"[\\/:\"*?<>|]+", "", name)
 
 
-def download_youtube_video(url=None, filepath=None, quality="best"):
+def download_youtube_video(url=None, filepath=None, quality="best", progress_bar=None):
     if filepath:
         return filepath
 
@@ -69,7 +69,15 @@ def download_youtube_video(url=None, filepath=None, quality="best"):
         "postprocessors": postprocessors,
     }
 
+    if progress_bar:
+        progress_bar["value"] = 25
+        progress_bar.update()
+
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([url])
+
+    if progress_bar:
+        progress_bar["value"] = 75
+        progress_bar.update()
 
     return output_path + final_ext

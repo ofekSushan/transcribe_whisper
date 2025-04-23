@@ -14,46 +14,76 @@ from tkinter import (
 )
 from transcribe_faster import transcribe
 from Helper import get_supported_models, DEVICE_OPTIONS
-from input_selector_ui import create_input_selector_ui
+from input_selector_ui import create_input_selector_ui, set_yt_progress
 from youtube_downloader import download_youtube_video
 
 
-def run_transcription():
-    filepath = file_path.get()
+def set_main_progress(value):
+    progress_bar["value"] = value
+    progress_bar.update()
+
+
+def run_program():
     if source_choice.get() == "YouTube Link":
         url = youtube_link.get()
         if not url:
             messagebox.showerror("No URL", "Please enter a YouTube link.")
             return
 
-        progress_bar["value"] = 5
-        progress_bar.update()
+        set_yt_progress(yt_progress, 5)
 
-        try:
-            filepath = download_youtube_video(url=url, quality=quality_choice.get())
-        except Exception as e:
-            messagebox.showerror("Download Failed", f"Failed to download video:\n{e}")
-            return
+        def download_thread():
+            set_yt_progress(yt_progress, 10)
+            try:
+                filepath_result = download_youtube_video(
+                    url=url, quality=quality_choice.get(), progress_bar=yt_progress
+                )
+                file_path.set(filepath_result)
+                set_yt_progress(yt_progress, 100)
+
+                if download_only.get():
+                    messagebox.showinfo(
+                        "Done", "Download complete (subtitles skipped)."
+                    )
+                    set_yt_progress(yt_progress, 0)
+                else:
+
+                    def wrapped_transcription():
+                        run_Wisper()
+                        set_yt_progress(yt_progress, 0)
+
+                    app.after(10, wrapped_transcription)
+
+            except Exception as e:
+                messagebox.showerror(
+                    "Download Failed", f"Failed to download video:\n{e}"
+                )
+                set_yt_progress(yt_progress, 0)
+
+        threading.Thread(target=download_thread).start()
+        return
     else:
-        if not filepath:
+        if not file_path.get():
             messagebox.showerror("No file", "Please select a file.")
             return
 
-    if download_only.get():
-        messagebox.showinfo("Done", "Download complete (subtitles skipped).")
-        return
+        if download_only.get():
+            messagebox.showinfo("Done", "Download complete (subtitles skipped).")
+            return
 
-    progress_bar["value"] = 0
-    progress_bar.update()
+        run_Wisper()
+
+
+def run_Wisper():
+    set_main_progress(0)
 
     def worker():
         try:
-            progress_bar["value"] = 10
-            progress_bar.update()
+            set_main_progress(10)
             if method_choice.get() == "Faster-Whisper":
                 device = DEVICE_OPTIONS[device_choice_label.get()]
                 transcribe(
-                    filepath,
+                    file_path.get(),
                     lang_choice.get(),
                     model_choice.get(),
                     device,
@@ -62,13 +92,12 @@ def run_transcription():
             else:
                 messagebox.showinfo("Not Implemented", "WhisperX support coming soon!")
 
-            progress_bar["value"] = 100
-            progress_bar.update()
+            set_main_progress(100)
             messagebox.showinfo("Done", "Transcription complete.")
         except Exception as e:
             messagebox.showerror("Error", str(e))
         finally:
-            progress_bar["value"] = 0
+            set_main_progress(0)
 
     threading.Thread(target=worker).start()
 
@@ -76,13 +105,11 @@ def run_transcription():
 app = Tk()
 app.title("Whisper GUI")
 
-# Input state
 source_choice = StringVar(value="YouTube Link")
 file_path = StringVar()
 youtube_link = StringVar()
 download_only = BooleanVar(value=False)
 
-# Settings state
 method_choice = StringVar(value="Faster-Whisper")
 lang_choice = StringVar(value="ja")
 model_choice = StringVar()
@@ -90,7 +117,6 @@ model_list = get_supported_models()
 model_choice.set("medium" if "medium" in model_list else model_list[0])
 device_choice_label = StringVar(value="Auto")
 
-# Layout
 content_frame = Frame(app)
 content_frame.pack()
 
@@ -130,7 +156,6 @@ Checkbutton(
     command=update_whisper_visibility,
 ).pack(pady=(10, 0))
 
-# Whisper Settings
 whisper_frame = Frame(content_frame)
 ttk.Separator(whisper_frame, orient="horizontal").pack(fill="x", pady=10)
 Label(whisper_frame, text="Whisper Settings:", font=("Arial", 12, "bold")).pack(
@@ -146,9 +171,8 @@ Label(whisper_frame, text="Device:").pack()
 OptionMenu(whisper_frame, device_choice_label, *DEVICE_OPTIONS.keys()).pack()
 whisper_frame.pack(pady=(10, 0))
 
-# Bottom Section
 progress_bar = ttk.Progressbar(app, orient="horizontal", length=300, mode="determinate")
 progress_bar.pack(pady=10)
-Button(app, text="Transcribe", command=run_transcription).pack(pady=10)
+Button(app, text="Transcribe", command=run_program).pack(pady=10)
 
 app.mainloop()

@@ -31,7 +31,6 @@ def create_input_selector_ui(
     )
     yt_progress.pack(pady=5)
 
-    # Now returns 5 values, including source_menu
     quality_choice = StringVar(value="best")
     return file_frame, youtube_frame, yt_progress, quality_choice, source_menu
 
@@ -42,3 +41,8 @@ def select_file(file_path):
     )
     if selected:
         file_path.set(selected)
+
+
+def set_yt_progress(progress_bar, value):
+    progress_bar["value"] = value
+    progress_bar.update()
