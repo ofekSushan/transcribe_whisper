@@ -2,11 +2,19 @@ import os
 import yt_dlp
 import re
 
-def sanitize_filename(name):
-    return re.sub(r'[\\/:"*?<>|]+', '', name)
 
-def download_youtube_video(url, quality="best"):
-    with yt_dlp.YoutubeDL({'quiet': True}) as ydl:
+def sanitize_filename(name):
+    return re.sub(r"[\\/:\"*?<>|]+", "", name)
+
+
+def download_youtube_video(url=None, filepath=None, quality="best"):
+    if filepath:
+        return filepath
+
+    if not url:
+        raise ValueError("You must provide a YouTube URL if not using local file.")
+
+    with yt_dlp.YoutubeDL({"quiet": True}) as ydl:
         info = ydl.extract_info(url, download=False)
         title = sanitize_filename(info.get("title", "youtube_video"))
 
@@ -16,16 +24,20 @@ def download_youtube_video(url, quality="best"):
     if quality == "audio":
         filename = f"{title} [audio]"
         format_code = "bestaudio"
-        postprocessors = [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-        }]
+        postprocessors = [
+            {
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "mp3",
+                "preferredquality": "192",
+            }
+        ]
         merge = None
         final_ext = ".mp3"
     else:
         if quality == "best":
-            actual_height = info.get("height") or info.get("formats", [{}])[0].get("height", 1080)
+            actual_height = info.get("height") or info.get("formats", [{}])[0].get(
+                "height", 1080
+            )
             suffix = f"{actual_height}p"
         else:
             suffix = quality
@@ -49,12 +61,12 @@ def download_youtube_video(url, quality="best"):
         return output_path + final_ext
 
     ydl_opts = {
-        'format': format_code,
-        'outtmpl': output_path,
-        'merge_output_format': merge,
-        'quiet': True,
-        'no_warnings': True,
-        'postprocessors': postprocessors,
+        "format": format_code,
+        "outtmpl": output_path,
+        "merge_output_format": merge,
+        "quiet": True,
+        "no_warnings": True,
+        "postprocessors": postprocessors,
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
