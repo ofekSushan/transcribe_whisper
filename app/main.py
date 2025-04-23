@@ -12,6 +12,7 @@ from tkinter import (
     Checkbutton,
     Frame,
 )
+from tkinter import PhotoImage
 from transcribe_faster import transcribe
 from Helper import get_supported_models, DEVICE_OPTIONS
 from input_selector_ui import create_input_selector_ui, set_yt_progress
@@ -105,6 +106,11 @@ def run_Wisper():
 app = Tk()
 app.title("Transcribe_whisper")
 app.geometry("512x668")
+try:
+    icon = PhotoImage(file="assets/icon.png")
+    app.iconphoto(False, icon)
+except Exception as e:
+    print(f"Could not load icon: {e}")
 
 # DARK MODE COLORS
 dark_bg = "#1e1e1e"
