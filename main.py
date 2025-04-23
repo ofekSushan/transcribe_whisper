@@ -106,6 +106,24 @@ app = Tk()
 app.title("Transcribe_whisper")
 app.geometry("512x668")
 
+# DARK MODE COLORS
+dark_bg = "#1e1e1e"
+light_fg = "#f0f0f0"
+highlight = "#3c3c3c"
+app.configure(bg=dark_bg)
+
+# ttk style
+ttk_style = ttk.Style()
+ttk_style.theme_use("clam")
+ttk_style.configure("TLabel", background=dark_bg, foreground=light_fg)
+ttk_style.configure("TCheckbutton", background=dark_bg, foreground=light_fg)
+ttk_style.configure("TButton", background=highlight, foreground=light_fg)
+ttk_style.configure("TFrame", background=dark_bg)
+ttk_style.configure("TSeparator", background=highlight)
+ttk_style.configure(
+    "Horizontal.TProgressbar", troughcolor=highlight, background="#5cb85c"
+)
+
 source_choice = StringVar(value="YouTube Link")
 file_path = StringVar()
 youtube_link = StringVar()
@@ -118,7 +136,7 @@ model_list = get_supported_models()
 model_choice.set("medium" if "medium" in model_list else model_list[0])
 device_choice_label = StringVar(value="Auto")
 
-content_frame = Frame(app)
+content_frame = Frame(app, bg=dark_bg)
 content_frame.pack()
 
 
@@ -155,24 +173,35 @@ Checkbutton(
     text="Download Only (No Subtitles)",
     variable=download_only,
     command=update_whisper_visibility,
+    bg=dark_bg,
+    fg=light_fg,
+    selectcolor=highlight,
 ).pack(pady=(10, 0))
 
-whisper_frame = Frame(content_frame)
-Label(whisper_frame, text="Whisper Settings:", font=("Arial", 12, "bold")).pack(
-    pady=(10, 10)
-)
-Label(whisper_frame, text="Whisper Engine:").pack()
+whisper_frame = Frame(content_frame, bg=dark_bg)
+Label(
+    whisper_frame,
+    text="Whisper Settings:",
+    font=("Arial", 12, "bold"),
+    bg=dark_bg,
+    fg=light_fg,
+).pack(pady=(10, 10))
+Label(whisper_frame, text="Whisper Engine:", bg=dark_bg, fg=light_fg).pack()
 OptionMenu(whisper_frame, method_choice, "Faster-Whisper", "WhisperX").pack()
-Label(whisper_frame, text="Language:").pack()
+Label(whisper_frame, text="Language:", bg=dark_bg, fg=light_fg).pack()
 OptionMenu(whisper_frame, lang_choice, "ja", "en").pack()
-Label(whisper_frame, text="Model Size:").pack()
+Label(whisper_frame, text="Model Size:", bg=dark_bg, fg=light_fg).pack()
 OptionMenu(whisper_frame, model_choice, *model_list).pack()
-Label(whisper_frame, text="Device:").pack()
+Label(whisper_frame, text="Device:", bg=dark_bg, fg=light_fg).pack()
 OptionMenu(whisper_frame, device_choice_label, *DEVICE_OPTIONS.keys()).pack()
 whisper_frame.pack(pady=(10, 0))
 
-progress_bar = ttk.Progressbar(whisper_frame, orient="horizontal", length=300, mode="determinate")
+progress_bar = ttk.Progressbar(
+    whisper_frame, orient="horizontal", length=300, mode="determinate"
+)
 progress_bar.pack(pady=10)
-Button(app, text="Transcribe", command=run_program).pack(pady=10)
+Button(app, text="Transcribe", command=run_program, bg=highlight, fg=light_fg).pack(
+    pady=10
+)
 
 app.mainloop()
