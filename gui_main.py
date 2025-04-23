@@ -77,11 +77,14 @@ file_frame, youtube_frame, yt_progress = create_input_selector_ui(
 update_source_inputs()
 
 # --- Rest of GUI ---
-Label(app, text="Language:").pack()
-OptionMenu(app, lang_choice, "ja", "en").pack()
+
+Label(app, text="Whisper Settings:", font=("Arial", 12, "bold")).pack(pady=(20, 10))
 
 Label(app, text="Whisper Engine:").pack()
 OptionMenu(app, method_choice, "Faster-Whisper", "WhisperX").pack()
+
+Label(app, text="Language:").pack()
+OptionMenu(app, lang_choice, "ja", "en").pack()
 
 Label(app, text="Model Size:").pack()
 OptionMenu(app, model_choice, *model_list).pack()
