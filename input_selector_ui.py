@@ -17,15 +17,20 @@ def create_input_selector_ui(
     input_container = ttk.Frame(app)
     input_container.pack()
 
+
     file_frame = ttk.Frame(input_container)
+
+    Label(file_frame, text="").pack(pady=5)
     Button(
         file_frame, text="Choose File", command=lambda: select_file(file_path)
     ).pack()
     Label(file_frame, textvariable=file_path).pack()
 
     youtube_frame = ttk.Frame(input_container)
+    Label(youtube_frame, text="").pack(pady=5)
     Label(youtube_frame, text="YouTube URL:").pack()
     Entry(youtube_frame, textvariable=youtube_link, width=40).pack()
+    Label(youtube_frame, text="").pack(pady=2)
     yt_progress = ttk.Progressbar(
         youtube_frame, orient="horizontal", length=300, mode="determinate"
     )

@@ -103,7 +103,8 @@ def run_Wisper():
 
 
 app = Tk()
-app.title("Whisper GUI")
+app.title("Transcribe_whisper")
+app.geometry("512x668")
 
 source_choice = StringVar(value="YouTube Link")
 file_path = StringVar()
