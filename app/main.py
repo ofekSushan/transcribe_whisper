@@ -1,4 +1,3 @@
-import os
 import threading
 from tkinter import (
     Tk,
@@ -14,7 +13,7 @@ from tkinter import (
 )
 from tkinter import PhotoImage
 from transcribe_faster import transcribe
-from Helper import get_supported_models, DEVICE_OPTIONS
+from Helper import Language_OPTIONS, get_supported_models, DEVICE_OPTIONS
 from input_selector_ui import create_input_selector_ui, set_yt_progress
 from youtube_downloader import download_youtube_video
 
@@ -82,10 +81,11 @@ def run_Wisper():
         try:
             set_main_progress(10)
             if method_choice.get() == "Faster-Whisper":
+                language=Language_OPTIONS[lang_choice_label.get()]
                 device = DEVICE_OPTIONS[device_choice_label.get()]
                 transcribe(
                     file_path.get(),
-                    lang_choice.get(),
+                    language,
                     model_choice.get(),
                     device,
                     progress_bar,
@@ -136,7 +136,8 @@ youtube_link = StringVar()
 download_only = BooleanVar(value=False)
 
 method_choice = StringVar(value="Faster-Whisper")
-lang_choice = StringVar(value="ja")
+lang_choice_label = StringVar(value="Auto")
+
 model_choice = StringVar()
 model_list = get_supported_models()
 model_choice.set("medium" if "medium" in model_list else model_list[0])
@@ -195,7 +196,7 @@ Label(
 Label(whisper_frame, text="Whisper Engine:", bg=dark_bg, fg=light_fg).pack()
 OptionMenu(whisper_frame, method_choice, "Faster-Whisper", "WhisperX").pack()
 Label(whisper_frame, text="Language:", bg=dark_bg, fg=light_fg).pack()
-OptionMenu(whisper_frame, lang_choice, "ja", "en").pack()
+OptionMenu(whisper_frame, lang_choice_label, *Language_OPTIONS.keys()).pack()
 Label(whisper_frame, text="Model Size:", bg=dark_bg, fg=light_fg).pack()
 OptionMenu(whisper_frame, model_choice, *model_list).pack()
 Label(whisper_frame, text="Device:", bg=dark_bg, fg=light_fg).pack()
