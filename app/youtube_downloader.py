@@ -60,6 +60,27 @@ def download_youtube_video(url=None, filepath=None, quality="best", progress_bar
     if os.path.exists(output_path + final_ext):
         return output_path + final_ext
 
+    def progress_hook(d):
+        if not progress_bar:
+            return
+
+        if d["status"] == "downloading":
+            total_bytes = d.get("total_bytes") or d.get("total_bytes_estimate")
+            downloaded = d.get("downloaded_bytes", 0)
+            if total_bytes:
+                try:
+                    percent = (downloaded / total_bytes) * 100
+                    progress_bar["value"] = percent
+                    progress_bar.update()
+                except:
+                    pass
+        elif d["status"] == "finished":
+            try:
+                progress_bar["value"] = 100
+                progress_bar.update()
+            except:
+                pass
+
     ydl_opts = {
         "format": format_code,
         "outtmpl": output_path,
@@ -67,17 +88,10 @@ def download_youtube_video(url=None, filepath=None, quality="best", progress_bar
         "quiet": True,
         "no_warnings": True,
         "postprocessors": postprocessors,
+        "progress_hooks": [progress_hook],
     }
-
-    if progress_bar:
-        progress_bar["value"] = 25
-        progress_bar.update()
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([url])
-
-    if progress_bar:
-        progress_bar["value"] = 75
-        progress_bar.update()
 
     return output_path + final_ext

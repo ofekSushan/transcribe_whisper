@@ -81,7 +81,7 @@ def run_Wisper():
         try:
             set_main_progress(10)
             if method_choice.get() == "Faster-Whisper":
-                language=Language_OPTIONS[lang_choice_label.get()]
+                language = Language_OPTIONS[lang_choice_label.get()]
                 device = DEVICE_OPTIONS[device_choice_label.get()]
                 transcribe(
                     file_path.get(),

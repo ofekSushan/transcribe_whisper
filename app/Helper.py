@@ -1,4 +1,5 @@
 DEVICE_OPTIONS = {"Auto": "auto", "GPU": "cuda", "CPU": "cpu"}
+
 Language_OPTIONS = {
     "Auto": None,
     "Japanese (日本語)": "ja",
