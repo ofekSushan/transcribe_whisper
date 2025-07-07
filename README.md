@@ -2,7 +2,6 @@ Simple YouTube Downloader & Subtitle Generator
 
 This is a simple personal project I made to download videos (mainly from YouTube) and generate subtitles.
 It was mostly used for Japanese content.
-Features
 
  Download videos using yt_dlp
  Generate subtitles using Faster-Whisper
